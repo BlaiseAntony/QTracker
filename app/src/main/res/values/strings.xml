@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">QTracker</string>
+    <string name="break_duration">Break Duration</string>
+    <string name="clocked_time">Clocked Time</string>
+    <string name="burned_time">Burned Time</string>
+    <string name="in_time">In Time</string>
+    <string name="submit">Submit</string>
+    <string name="enter_auth_key">Enter Auth. Key</string>
+    <string name="re_enter_key">Re-enter key</string>
+</resources>
