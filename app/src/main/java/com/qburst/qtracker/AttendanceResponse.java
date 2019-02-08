@@ -29,7 +29,7 @@ class AttendanceResponse {
             private Float hoursBurned;
             @SerializedName("hours_clocked")
             private Float hoursClocked;
-            @SerializedName("breakDuration")
+            @SerializedName("break_duration")
             private Float breakDuration;
             @SerializedName("daily_logs")
             private List<DailyLog> dailyLog;
@@ -60,9 +60,15 @@ class AttendanceResponse {
         class DailyLog {
             @SerializedName("in_out")
             private int inOut;
+            @SerializedName("card_swipe_time")
+            private String  time;
 
             int getInOut() {
                 return inOut;
+            }
+
+            String getTime() {
+                return time;
             }
         }
     }
