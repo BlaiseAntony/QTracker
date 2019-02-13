@@ -35,6 +35,8 @@ class AttendanceResponse {
             private List<DailyLog> dailyLog;
             @SerializedName("first_in_time")
             private String firstInTime;
+            @SerializedName("has_improper_logs")
+            private boolean Conflict;
 
             Float getHoursBurned() {
                 return hoursBurned;
@@ -48,12 +50,16 @@ class AttendanceResponse {
                 return breakDuration;
             }
 
-            public String getFirstInTime() {
+            String getFirstInTime() {
                 return firstInTime;
             }
 
             List<DailyLog> getDailyLog() {
                 return dailyLog;
+            }
+
+            public boolean isConflict() {
+                return Conflict;
             }
         }
 
@@ -62,6 +68,8 @@ class AttendanceResponse {
             private int inOut;
             @SerializedName("card_swipe_time")
             private String  time;
+            @SerializedName("employee_name")
+            private String name;
 
             int getInOut() {
                 return inOut;
@@ -69,6 +77,10 @@ class AttendanceResponse {
 
             String getTime() {
                 return time;
+            }
+
+            public String getName() {
+                return name;
             }
         }
     }

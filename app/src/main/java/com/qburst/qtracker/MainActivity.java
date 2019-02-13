@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView burnedTime;
     private TextView clockedTime;
     private TextView breakDuration;
+    private TextView salutation;
+    private TextView conflict;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
             breakDuration = findViewById(R.id.breakDurationValue);
             clockedTime = findViewById(R.id.clockedTimeValue);
             burnedTime = findViewById(R.id.burnedTimeValue);
+            salutation = findViewById(R.id.salutation);
+            conflict = findViewById(R.id.conflict);
             refresh();
         }
         else {
@@ -131,11 +135,20 @@ public class MainActivity extends AppCompatActivity {
                                 int m = data.getDailyLog().size() - 1;
                                 if (m > -1) {
                                     AttendanceResponse.PayLoad.DailyLog log = data.getDailyLog().get(m);
+                                    salutation.setText("Hi "+log.getName()+",");
                                     if (log.getInOut() == 0) {
                                         inOut.setText(stringToTime(log.getTime()));
+                                        if(data.isConflict()) {
+                                            inOut.setText(inOut.getText()+"*");
+                                            conflict.setVisibility(View.VISIBLE);
+                                        }
                                         inOut.setTextColor(Color.GREEN);
                                     } else {
                                         inOut.setText(stringToTime(log.getTime()));
+                                        if(data.isConflict()) {
+                                            inOut.setText(inOut.getText()+"*");
+                                            conflict.setVisibility(View.VISIBLE);
+                                        }
                                         inOut.setTextColor(Color.RED);
                                     }
                                 }
