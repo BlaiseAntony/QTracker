@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
 
     private static final String BASE_URL =
-            "http://qtracker.qburst.com/v2/api/attendance-tracker/user/";
+            "http://qtracker.qburst.com/v2/api/";
     private static Retrofit retrofit = null;
 
 

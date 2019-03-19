@@ -1,34 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/swipe"
     android:layout_height="match_parent"
+    android:background="@android:color/background_dark"
     tools:context=".MainActivity">
 
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <TextView
         android:id="@+id/salutation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/wrt"
         app:layout_constraintStart_toEndOf="@+id/start"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/wrt"/>
+        app:layout_constraintTop_toTopOf="@id/imageView" />
 
     <TextView
         android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
         android:text="@string/status"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/start"
+        app:layout_constraintTop_toBottomOf="@id/wrt" />
+
+    <TextView
+        android:id="@+id/inoutStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="5dp"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@id/guide"
         app:layout_constraintTop_toBottomOf="@id/wrt" />
 
     <TextView
@@ -37,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@id/guide"
         app:layout_constraintTop_toBottomOf="@id/wrt" />
@@ -46,10 +62,10 @@
         android:id="@+id/inTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginStart="5dp"
+        android:layout_marginTop="15dp"
         android:text="@string/in_time"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/start"
@@ -59,9 +75,9 @@
         android:id="@+id/inTimeValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="15dp"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@id/guide"
         app:layout_constraintTop_toBottomOf="@id/status" />
@@ -70,10 +86,10 @@
         android:id="@+id/burnedTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
         android:text="@string/burned_time"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/start"
@@ -83,9 +99,9 @@
         android:id="@+id/burnedTimeValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@id/guide"
         app:layout_constraintTop_toBottomOf="@id/inTime" />
@@ -94,10 +110,10 @@
         android:id="@+id/clockedTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
         android:text="@string/clocked_time"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/start"
@@ -107,9 +123,9 @@
         android:id="@+id/clockedTimeValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@id/guide"
         app:layout_constraintTop_toBottomOf="@id/burnedTime" />
@@ -118,10 +134,10 @@
         android:id="@+id/breakDuration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
         android:text="@string/break_duration"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/start"
@@ -131,32 +147,57 @@
         android:id="@+id/breakDurationValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@id/guide"
         app:layout_constraintTop_toBottomOf="@id/clockedTime" />
+
+    <TextView
+        android:id="@+id/outTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/out_time"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/start"
+        app:layout_constraintTop_toBottomOf="@id/breakDuration" />
+
+    <TextView
+        android:id="@+id/outTimeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="15dp"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@id/guide"
+        app:layout_constraintTop_toBottomOf="@id/breakDuration" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.6" />
+        app:layout_constraintGuide_percent="0.58" />
+
     <android.support.constraint.Guideline
         android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.1" />
+        app:layout_constraintGuide_percent="0.18" />
 
     <android.support.constraint.Guideline
         android:id="@+id/wrt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.3" />
+        app:layout_constraintGuide_percent="0.36" />
 
     <TextView
         android:id="@+id/conflict"
@@ -165,9 +206,48 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
         android:text="@string/you_have_conflicts"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="14sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-</android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/leaveMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="@string/you_can_leave_now"
+        android:textColor="@android:color/holo_green_light"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/outTime" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="248dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/start"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/icon" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:onClick="createOptionsMenu"
+        android:padding="5dp"
+        android:src="@drawable/baseline_more_vert_white_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v4.widget.SwipeRefreshLayout>

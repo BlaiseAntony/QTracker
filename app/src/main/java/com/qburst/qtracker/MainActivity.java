@@ -1,31 +1,29 @@
 package com.qburst.qtracker;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.PopupMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DataRecievedListener,
+        LoginListener {
 
     private Handler handler;
     private Runnable timer;
     private SharedPreferences myPref;
-    private EditText authKey;
+    private EditText user;
     private TextView inOut;
     private TextView inTime;
     private TextView burnedTime;
@@ -33,18 +31,26 @@ public class MainActivity extends AppCompatActivity {
     private TextView breakDuration;
     private TextView salutation;
     private TextView conflict;
+    private TextView inoutStatus;
+    private TextView leaveMessage;
+    private TextView outTime;
+    private TextView password;
+    private MainApi api;
+    private SwipeRefreshLayout swipe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         myPref = this.getSharedPreferences("myPref", MODE_PRIVATE);
         boolean addedKey = myPref.getBoolean("addedKey", false);
+        api = new MainApi(this, this, this);
         initViews(addedKey);
         handler = new Handler();
         timer = new Runnable() {
             @Override
             public void run() {
                 refresh();
+                startTimer();
             }
         };
     }
@@ -59,34 +65,51 @@ public class MainActivity extends AppCompatActivity {
             burnedTime = findViewById(R.id.burnedTimeValue);
             salutation = findViewById(R.id.salutation);
             conflict = findViewById(R.id.conflict);
+            inoutStatus = findViewById(R.id.inoutStatus);
+            leaveMessage = findViewById(R.id.leaveMessage);
+            outTime = findViewById(R.id.outTimeValue);
+            swipe = findViewById(R.id.swipe);
+            swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    refresh();
+                }
+            });
             refresh();
         }
         else {
             setContentView(R.layout.enter_auth_key);
-            authKey = findViewById(R.id.key);
-            Button submit = findViewById(R.id.submit);
+            user = findViewById(R.id.user);
+            password = findViewById(R.id.password);
+            Button submit = findViewById(R.id.login);
             submit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String key = authKey.getText().toString();
-                    if(key.equals("")) {
-                        Toast.makeText(MainActivity.this,
-                                "The key can't be empty",Toast.LENGTH_SHORT).show();
+                    String userT = user.getText().toString();
+                    String passwordT = password.getText().toString();
+                    if(userT.equals("") || passwordT.equals("")) {
+                        popUp("The username or password can't be empty");
                     }
                     else {
-                        SharedPreferences.Editor editor = myPref.edit();
-                        editor.putString("key", key);
-                        editor.putBoolean("addedKey", true);
-                        editor.apply();
-                        initViews(true);
+                        api.Login(userT,passwordT);
                     }
                 }
             });
         }
     }
 
+    private void openSettings() {
+        Intent intent = new Intent(this, Settings.class);
+        startActivity(intent);
+    }
+
+    private void popUp(String str) {
+        Snackbar.make(findViewById(android.R.id.content), str, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+    }
+
     private void startTimer() {
-        handler.postDelayed(timer,20000);
+        handler.postDelayed(timer,100000);
     }
 
     private void stopTimer() {
@@ -104,100 +127,108 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         stopTimer();
         super.onPause();
+
     }
-    private String changeToTime(Float time) {
-        int hour = (int) Math.floor(time);
-        int minute = (int) Math.floor((time * 60) % 60);
-        return intToString(hour) + ":" + intToString(minute);
-    }
-    private String minuteToHour(Float time) {
-        int hour = (int) (time/60);
-        int minute = (int) (time%60);
-        return intToString(hour) + ":" + intToString(minute);
-    }
-    private void refresh() {
+
+    private void startService() {
         if(myPref.getBoolean("addedKey", false)) {
-            Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-            String key = myPref.getString("key", "");
-            WebService service = ApiClient.getClient().create(WebService.class);
-            Call<AttendanceResponse> call = service.getData(String.valueOf(calendar.get(Calendar.MONTH) + 1),
-                    String.valueOf(calendar.get(Calendar.YEAR)), key);
-            call.enqueue(new Callback<AttendanceResponse>() {
-                @Override
-                public void onResponse(Call<AttendanceResponse> call, Response<AttendanceResponse> res) {
-                    if (res.isSuccessful()) {
-                        if (res.body() != null) {
-                            List<AttendanceResponse.PayLoad.DailyData> dailyDataList =
-                                    res.body().getPayload().getMonthlyData();
-                            int k = dailyDataList.size() - 1;
-                            if (k > -1) {
-                                AttendanceResponse.PayLoad.DailyData data = dailyDataList.get(k);
-                                int m = data.getDailyLog().size() - 1;
-                                if (m > -1) {
-                                    AttendanceResponse.PayLoad.DailyLog log = data.getDailyLog().get(m);
-                                    salutation.setText("Hi "+log.getName()+",");
-                                    if (log.getInOut() == 0) {
-                                        inOut.setText(stringToTime(log.getTime()));
-                                        if(data.isConflict()) {
-                                            inOut.setText(inOut.getText()+"*");
-                                            conflict.setVisibility(View.VISIBLE);
-                                        }
-                                        inOut.setTextColor(Color.GREEN);
-                                    } else {
-                                        inOut.setText(stringToTime(log.getTime()));
-                                        if(data.isConflict()) {
-                                            inOut.setText(inOut.getText()+"*");
-                                            conflict.setVisibility(View.VISIBLE);
-                                        }
-                                        inOut.setTextColor(Color.RED);
-                                    }
-                                }
-                                inTime.setText(stringToTime(data.getFirstInTime()));
-                                burnedTime.setText(String.valueOf(changeToTime(data.getHoursBurned())));
-                                clockedTime.setText(String.valueOf(changeToTime(data.getHoursClocked())));
-                                breakDuration.setText(String.valueOf(minuteToHour(data.getBreakDuration())));
-                            } else {
-                                setDash();
-                            }
-                        } else {
-                            setDash();
-                        }
-                    }
+            Intent intent = new Intent(this, ShowNotification.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                this.startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
+        }
+    }
+
+    private void refresh() {
+        swipe.setRefreshing(true);
+        if(myPref.getBoolean("addedKey", false)) {
+            api.getData();
+        }
+    }
+
+    private void checkForOutTime(boolean IsLeaveTime) {
+        if(IsLeaveTime) {
+            leaveMessage.setVisibility(View.VISIBLE);
+        } else {
+            leaveMessage.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void onResponseReceived(String name, String log, boolean conflic, int inOrOut, String firstIn,
+                                   String burned, String clocked, String breakDur, boolean IsLeaveTime,
+                                   String outTim) {
+        salutation.setText("Hi " + name + ",");
+        inOut.setText(log);
+        if (conflic) {
+            conflict.setVisibility(View.VISIBLE);
+        }
+        if (inOrOut == 0) {
+            inoutStatus.setText("IN");
+            inoutStatus.setTextColor(Color.GREEN);
+        } else {
+            inoutStatus.setText("OUT");
+            inoutStatus.setTextColor(Color.RED);
+        }
+        inTime.setText(firstIn);
+        burnedTime.setText(burned);
+        clockedTime.setText(clocked);
+        breakDuration.setText(breakDur);
+        outTime.setText(outTim);
+        swipe.setRefreshing(false);
+        checkForOutTime(IsLeaveTime);
+        if (!myPref.getBoolean("notificationShown", false) &&
+                !myPref.getBoolean("disableNotification", false)) {
+            startService();
+        }
+    }
+
+    @Override
+    public void onFailure() {
+        swipe.setRefreshing(false);
+        inOut.setText("--");
+        inTime.setText("--");
+        burnedTime.setText("--");
+        clockedTime.setText("--");
+        breakDuration.setText("--");
+        outTime.setText("--");
+    }
+
+    @Override
+    public void onSuccess(String accessToken) {
+        SharedPreferences.Editor editor = myPref.edit();
+        editor.putString("key", accessToken);
+        editor.putBoolean("addedKey", true);
+        editor.commit();
+        initViews(true);
+    }
+
+    @Override
+    public void onFailure1() {
+        popUp("Login failed please try after sometime");
+    }
+
+    public void createOptionsMenu(View view) {
+        PopupMenu popup = new PopupMenu(this, view);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.options_menu, popup.getMenu());
+        popup.show();
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.settings:
+                        openSettings();
+                        return true;
+                    case R.id.refresh:
+                        refresh();
+                        return true;
+                    default:
+                        return false;
                 }
-
-                @Override
-                public void onFailure(Call<AttendanceResponse> call, Throwable t) {
-                    setDash();
-                }
-            });
-        }
-    }
-
-    private String stringToTime(String firstInTime) {
-        String[] a = firstInTime.split("T");
-        String[] a2 = a[1].split(":");
-        int hour = Integer.parseInt(a2[0]) + 5;
-        int minute = Integer.parseInt(a2[1]) + 30;
-        if(minute >= 60) {
-            hour += 1;
-            minute -= 60;
-        }
-        return intToString(hour) + ":" + intToString(minute);
-    }
-
-    private String intToString(int num) {
-        return String.format(Locale.getDefault(),"%02d", num);
-    }
-
-    private void setDash() {
-        if(burnedTime.getText() == null) {
-            burnedTime.setText("--");
-        }
-        if(clockedTime.getText() == null) {
-            clockedTime.setText("--");
-        }
-        if(breakDuration.getText() == null) {
-            breakDuration.setText("--");
-        }
+            }
+        });
     }
 }

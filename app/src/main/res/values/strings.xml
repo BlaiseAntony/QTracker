@@ -1,12 +1,17 @@
 <resources>
     <string name="app_name">QTracker</string>
-    <string name="break_duration">Break Duration</string>
-    <string name="clocked_time">Clocked Time</string>
-    <string name="burned_time">Burned Time</string>
+    <string name="break_duration">Break</string>
+    <string name="out_time">Out Time</string>
+    <string name="clocked_time">Clocked</string>
+    <string name="burned_time">Burned</string>
     <string name="in_time">In Time</string>
-    <string name="submit">Submit</string>
-    <string name="enter_auth_key">Enter Auth. Key</string>
-    <string name="re_enter_key">Re-enter key</string>
-    <string name="status">Status</string>
+    <string name="login">Login</string>
+    <string name="user">Employee Id</string>
+    <string name="password">Password</string>
+    <string name="status">Recent</string>
     <string name="you_have_conflicts">*you have conflicts</string>
+    <string name="you_can_leave_now">You can leave now</string>
+    <string name="settings">Settings</string>
+    <string name="refresh">Refresh</string>
+    <string name="notification_and_background_service">Notification and background service</string>
 </resources>
