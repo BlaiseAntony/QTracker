@@ -23,6 +23,9 @@ public class ShowNotification extends Service implements DataRecievedListener {
     private String breakDur;
     private boolean IsLeaveTime;
     private SharedPreferences myPref;
+    private String firstIn;
+    private String out;
+    private boolean conflict;
 
     private void refresh() {
         MainApi api = new MainApi(this, this);
@@ -53,7 +56,7 @@ public class ShowNotification extends Service implements DataRecievedListener {
     }
 
     private void startTimer() {
-        handler.postDelayed(timer,20000);
+        handler.postDelayed(timer,100000);
     }
 
     private void stopTimer() {
@@ -75,11 +78,6 @@ public class ShowNotification extends Service implements DataRecievedListener {
         return START_STICKY;
     }
 
-    @Override
-    public void onDestroy() {
-        stopTimer();
-        super.onDestroy();
-    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -90,32 +88,43 @@ public class ShowNotification extends Service implements DataRecievedListener {
     public void onResponseReceived(String name, String log, boolean conflict,
                                    int inOrOut, String firstIn, String burned, String clocked,
                                    String breakDur, boolean IsLeaveTime, String out) {
+        stopTimer();
         this.IsLeaveTime = IsLeaveTime;
         this.burned = burned;
         this.clocked = clocked;
         this.breakDur = breakDur;
+        this.firstIn = firstIn;
+        this.out = out;
+        this.conflict = conflict;
         if (IsLeaveTime) {
-            createLeaveNotification(burned, clocked, breakDur);
+            createLeaveNotification(conflict, burned, clocked, breakDur);
         } else {
-            createPermNotification("InTime:"+firstIn, burned, clocked, breakDur);
+            createPermNotification(inOrOut, log,conflict, firstIn, out);
         }
+        startTimer();
     }
 
     @Override
     public void onFailure() {
         if (IsLeaveTime) {
-            createLeaveNotification(burned, clocked, breakDur);
+            createLeaveNotification(conflict, burned, clocked, breakDur);
         } else {
-            createPermNotification("Can't refresh data", burned, clocked, breakDur);
+            createPermNotification(-1, "Can't refresh data",conflict, firstIn, out);
         }
     }
 
-    private void createLeaveNotification(String burned, String clocked, String breakDur) {
+    private void createLeaveNotification(Boolean conflict, String burned, String clocked, String breakDur) {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "102");
         PendingIntent resultIntent = PendingIntent.getActivity(this, 101,
                 new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.setContentTitle("You can leave now")
-                .setContentText("Burned:" + burned + " :: Clocked:" + clocked + " :: Break:" + breakDur)
+        String  title;
+        if (conflict) {
+            title = "Please compensate conflict time before you leave";
+        } else {
+            title = "You can leave now";
+        }
+        mBuilder.setContentTitle(title)
+                .setContentText("Burned : " + burned + " | Clocked : " + clocked + " | Break : " + breakDur)
                 .setOnlyAlertOnce(true)
                 .setColor(getResources().getColor(R.color.green))
                 .setContentIntent(resultIntent)
@@ -123,23 +132,38 @@ public class ShowNotification extends Service implements DataRecievedListener {
         Notification notification = mBuilder.build();
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.notify(102, notification);
+        myPref.edit().putBoolean("notificationShown", true).commit();
+        stopTimer();
         stopForeground(true);
         notificationManager.cancel(101);
-        myPref.edit().putBoolean("notificationShown", true).commit();
-        onDestroy();
+        stopSelf();
     }
 
-    private void createPermNotification(String firstIn, String burned, String clocked,
-                                        String breakDur) {
+    private void createPermNotification(int inOrOut, String s, Boolean conflict, String firstIn, String out) {
         if(myPref.getBoolean("disableNotification", false)) {
+            stopTimer();
             stopForeground(true);
-            onDestroy();
+            stopSelf();
         } else {
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "101");
             PendingIntent resultIntent = PendingIntent.getActivity(this, 101,
                     new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-            mBuilder.setContentTitle(firstIn)
-                    .setContentText("Burned:" + burned + " :: Clocked:" + clocked + " :: Break:" + breakDur)
+            String title;
+            if (inOrOut == 0) {
+                title = "Status : In ["+s+"]";
+            } else if (inOrOut == 1) {
+                title = "Status : Out ["+s+"]";
+            } else {
+                title = s;
+            }
+            String outTime;
+            if(conflict) {
+                outTime = out+"(may vary since you have conflicts)";
+            } else {
+                outTime = out;
+            }
+            mBuilder.setContentTitle(title)
+                    .setContentText("First In : " + firstIn + " | Expected Out Time : " + outTime)
                     .setSmallIcon(R.mipmap.ic_stat_onesignal_default)
                     .setOnlyAlertOnce(true)
                     .setColor(getResources().getColor(R.color.red))

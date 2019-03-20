@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements DataRecievedListe
     }
 
     private void startTimer() {
-        handler.postDelayed(timer,100000);
+        handler.postDelayed(timer,20000);
     }
 
     private void stopTimer() {
@@ -142,8 +142,8 @@ public class MainActivity extends AppCompatActivity implements DataRecievedListe
     }
 
     private void refresh() {
-        swipe.setRefreshing(true);
         if(myPref.getBoolean("addedKey", false)) {
+            swipe.setRefreshing(true);
             api.getData();
         }
     }
@@ -160,11 +160,9 @@ public class MainActivity extends AppCompatActivity implements DataRecievedListe
     public void onResponseReceived(String name, String log, boolean conflic, int inOrOut, String firstIn,
                                    String burned, String clocked, String breakDur, boolean IsLeaveTime,
                                    String outTim) {
+        stopTimer();
         salutation.setText("Hi " + name + ",");
         inOut.setText(log);
-        if (conflic) {
-            conflict.setVisibility(View.VISIBLE);
-        }
         if (inOrOut == 0) {
             inoutStatus.setText("IN");
             inoutStatus.setTextColor(Color.GREEN);
@@ -176,13 +174,19 @@ public class MainActivity extends AppCompatActivity implements DataRecievedListe
         burnedTime.setText(burned);
         clockedTime.setText(clocked);
         breakDuration.setText(breakDur);
-        outTime.setText(outTim);
+        if (conflic) {
+            conflict.setVisibility(View.VISIBLE);
+            outTime.setText(outTim+"*");
+        } else {
+            outTime.setText(outTim);
+        }
         swipe.setRefreshing(false);
         checkForOutTime(IsLeaveTime);
         if (!myPref.getBoolean("notificationShown", false) &&
                 !myPref.getBoolean("disableNotification", false)) {
             startService();
         }
+        startTimer();
     }
 
     @Override
@@ -194,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements DataRecievedListe
         clockedTime.setText("--");
         breakDuration.setText("--");
         outTime.setText("--");
+        inoutStatus.setText("");
     }
 
     @Override
