@@ -119,7 +119,7 @@ public class ShowNotification extends Service implements DataRecievedListener {
                 new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
         String  title;
         if (conflict) {
-            title = "Please compensate conflict time before you leave";
+            title = "You have conflicts";
         } else {
             title = "You can leave now";
         }
@@ -150,9 +150,9 @@ public class ShowNotification extends Service implements DataRecievedListener {
                     new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
             String title;
             if (inOrOut == 0) {
-                title = "Status : In ["+s+"]";
+                title = "IN";
             } else if (inOrOut == 1) {
-                title = "Status : Out ["+s+"]";
+                title = "OUT";
             } else {
                 title = s;
             }
@@ -163,7 +163,7 @@ public class ShowNotification extends Service implements DataRecievedListener {
                 outTime = out;
             }
             mBuilder.setContentTitle(title)
-                    .setContentText("First In : " + firstIn + " | Expected Out Time : " + outTime)
+                    .setContentText("Recent : " + s + " | Expected Out Time : " + outTime)
                     .setSmallIcon(R.mipmap.ic_stat_onesignal_default)
                     .setOnlyAlertOnce(true)
                     .setColor(getResources().getColor(R.color.red))

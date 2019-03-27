@@ -80,9 +80,9 @@ class MainApi {
                         if (data != null  && log != null) {
                             String a = stringToTime(log.getTime(), false);
                             String b = stringToTime(data.getFirstInTime(), true);
-                            String c = String.valueOf(changeToTime(data.getHoursBurned()));
-                            String d = String.valueOf(changeToTime(data.getHoursClocked()));
-                            String e = String.valueOf(minuteToHour(data.getBreakDuration()));
+                            String c = String.valueOf(changeToTime(data.getHoursBurned())) + " Hrs";
+                            String d = String.valueOf(changeToTime(data.getHoursClocked())) + " Hrs";
+                            String e = String.valueOf(minuteToHour(data.getBreakDuration())) + " Hrs";
                             int breakMin = breakHour*60 + breakMinute;
                             int additionalTime;
                             if(breakMin > 60) {
@@ -97,7 +97,7 @@ class MainApi {
                             String name[] = log.getName().split(" ");
                             listener.onResponseReceived(name[0], a,
                                     data.isConflict(), log.getInOut(), b, c, d, e,
-                                    clocked > 540 && burned > 480, f);
+                                    clocked > 540 && burned > 480 && log.getInOut() == 0, f);
                         } else {
                             listener.onFailure();
                         }
@@ -123,7 +123,18 @@ class MainApi {
             expectedOutHour += 1;
             expectedOutMin -= 60;
         }
-        return intToString(expectedOutHour) + ":" + intToString(expectedOutMin);
+        return changeToNormalClock(expectedOutHour, expectedOutMin);
+    }
+
+    private String changeToNormalClock(int hour, int minute) {
+        String amOrpm;
+        if (hour > 12) {
+            hour-=12;
+            amOrpm = "PM";
+        } else  {
+            amOrpm ="AM";
+        }
+        return intToString(hour) + ":" + intToString(minute) + " " + amOrpm;
     }
 
     private String changeToTime(Float time) {
@@ -151,7 +162,7 @@ class MainApi {
             inHour = hour;
             inMinute = minute;
         }
-        return intToString(hour) + ":" + intToString(minute);
+        return changeToNormalClock(hour, minute);
     }
 
     private String intToString(int num) {

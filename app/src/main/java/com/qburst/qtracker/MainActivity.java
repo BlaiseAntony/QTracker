@@ -148,9 +148,15 @@ public class MainActivity extends AppCompatActivity implements DataRecievedListe
         }
     }
 
-    private void checkForOutTime(boolean IsLeaveTime) {
+    private void checkForOutTime(boolean IsLeaveTime, boolean conflic) {
         if(IsLeaveTime) {
-            leaveMessage.setVisibility(View.VISIBLE);
+            if (conflic) {
+                leaveMessage.setVisibility(View.VISIBLE);
+                leaveMessage.setText("You have conflicts");
+            } else {
+                leaveMessage.setVisibility(View.VISIBLE);
+                leaveMessage.setText("You can leave now");
+            }
         } else {
             leaveMessage.setVisibility(View.INVISIBLE);
         }
@@ -181,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements DataRecievedListe
             outTime.setText(outTim);
         }
         swipe.setRefreshing(false);
-        checkForOutTime(IsLeaveTime);
+        checkForOutTime(IsLeaveTime, conflic);
         if (!myPref.getBoolean("notificationShown", false) &&
                 !myPref.getBoolean("disableNotification", false)) {
             startService();
@@ -199,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements DataRecievedListe
         breakDuration.setText("--");
         outTime.setText("--");
         inoutStatus.setText("");
+        leaveMessage.setVisibility(View.INVISIBLE);
     }
 
     @Override
